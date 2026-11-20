@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Warehouse stock risk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600&family=Barlow:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e9ebec;--ink:#1c2024;--mut:#59616a;--rule:#cdd1d4;--hi:#d98a00;--mid:#f0c766;--lo:#9aa2aa;--track:#d9dcdf;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171a;--ink:#ecedee;--mut:#9aa3ab;--rule:#2a3036;--hi:#f2a900;--mid:#7a5b12;--lo:#5d666e;--track:#22282d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#14171a;--ink:#ecedee;--mut:#9aa3ab;--rule:#2a3036;--hi:#f2a900;--mid:#7a5b12;--lo:#5d666e;--track:#22282d;color-scheme:dark}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.65 Barlow,system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:44rem;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+h1,h2{font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;font-weight:600;line-height:1.05;margin:0;text-transform:none}
+h1{font-size:clamp(2.6rem,10vw,4rem)}
+h2{font-size:2rem;margin:3.5rem 0 1rem}
+p{margin:0 0 1rem;max-width:38rem}
+.by{color:var(--mut);font-size:.9rem;margin:0 0 1.25rem}
+.lede{color:var(--mut);font-size:1.1rem;margin-top:1.25rem}
+.hero{display:flex;flex-wrap:wrap;gap:1.75rem;align-items:flex-start;margin-top:2.25rem;padding-top:2rem;border-top:3px solid var(--hi)}
+.hero svg{width:12rem;height:12rem;flex:none}
+.big{font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;font-weight:600;font-size:5rem;line-height:.95;font-variant-numeric:tabular-nums}
+.hero p{margin:.5rem 0 0;color:var(--mut);font-size:.95rem}
+.hero strong{font-weight:500;color:var(--ink)}
+.lg{display:flex;flex-wrap:wrap;gap:.35rem 1rem;font-size:.85rem;color:var(--mut);margin-top:.9rem}
+.lg i,.key i{display:inline-block;width:.7rem;height:.7rem;border-radius:2px;margin-right:.35rem;vertical-align:-1px}
+.plot{position:relative;height:190px;margin-top:.5rem}
+.cols{display:grid;gap:8px;align-items:end;height:190px}
+.col{display:flex;flex-direction:column;justify-content:flex-end;text-align:center}
+.col b{font-size:.75rem;font-weight:500;font-variant-numeric:tabular-nums;padding-bottom:3px;position:relative;z-index:1}
+.bar{border-radius:4px 4px 0 0}
+.avg{position:absolute;left:0;right:0;border-top:1.5px dashed var(--mut)}
+.labs{display:grid;gap:8px;margin-top:.4rem;border-top:1px solid var(--rule);padding-top:.35rem}
+.lab{font-size:.78rem;text-align:center;line-height:1.25}
+.lab small{display:block;color:var(--mut);font-size:.7rem}
+.grp{font-size:.85rem;color:var(--mut);margin:1.75rem 0 .75rem;padding-bottom:.35rem;border-bottom:1px solid var(--rule)}
+.key{font-size:.85rem;color:var(--mut);margin-top:1.25rem}
+ul{padding-left:1.1rem;margin:0 0 1rem;max-width:38rem}
+li{margin-bottom:.75rem}
+.note{font-size:.85rem;color:var(--mut)}
+</style>
+</head>
+<body>
+<main>
+<p class="by">Youssef’s data analytics portfolio · Project 2: Finance &amp; sales dashboard</p>
+<h1>Warehouse stock risk</h1>
+<p class="lede">Two out of every three warehouse records are out of stock or running low. The shortages cluster around a few products, one aisle and one supplier, and gaps in the data make stock levels harder to trust.</p>
+
+<section class="hero" aria-label="Stock status overview">
+<svg id="grid" viewBox="0 0 190 190" role="img" aria-label="Grid of 100 blocks: 33 out of stock, 33 low stock, 34 in stock. Each block stands for about 10 records."></svg>
+<div>
+<div class="big">66.00%</div>
+<p><strong>660 of 1,000</strong> records are Out of Stock (332) or Low Stock (328).</p>
+<p>They hold <strong>$2,019,781</strong> of the <strong>$2,949,939</strong> recorded inventory value (68.47%).</p>
+<div class="lg"><span><i style="background:var(--hi)"></i>Out of stock 33.2%</span><span><i style="background:var(--mid)"></i>Low stock 32.8%</span><span><i style="background:var(--track)"></i>In stock 34.0%</span></div>
+</div>
+</section>
+
+<h2>Where stockouts concentrate</h2>
+<p>Share of records that are Out of Stock, by segment. The dashed line is the 33.2% overall rate, and amber columns sit above it.</p>
+<div id="bars"></div>
+<p class="key"><i style="background:var(--hi)"></i>Above overall rate &nbsp; <i style="background:var(--lo)"></i>At or below</p>
+
+<h2>What the numbers say</h2>
+<ul>
+<li>Gadget X has the highest out-of-stock rate at 40.60% (54 of 133). Widget B follows at 38.82% and has the most stockouts of any product (66 of 170).</li>
+<li>Furniture leads the categories at 35.85% (95 of 265), then Clothing at 34.63% (89 of 257).</li>
+<li>Warehouse 2 has the highest rate at 34.64% (115 of 332), and Aisle 5 leads locations at 38.69% (77 of 199).</li>
+<li>Supplier D has the highest rate at 36.02% (85 of 236). Supplier B has the largest volume, with 94 stockouts out of 288 records.</li>
+<li>The gaps are widest between products (12.8 points) and aisles (9.2 points). Warehouses differ by only 2.3 points, so the problem is not one bad site.</li>
+</ul>
+
+<h2>Recommendations</h2>
+<ul>
+<li>Prioritize replenishment for Gadget X, Widget B, Furniture, Warehouse 2 and Aisle 5, where stockouts and low-stock counts are heaviest.</li>
+<li>Audit lead times and fulfillment reliability with Supplier D (highest stockout rate) and Supplier B (highest volume).</li>
+<li>Enforce data and status rules at entry: standardize text quantities such as “two hundred” to 200, require price and restock date, and align status labels with actual quantities so Out of Stock rows don’t keep positive stock counts.</li>
+</ul>
+
+<h2>Data quality</h2>
+<p>Stock visibility is weakened by gaps in the records themselves: 158 rows have no quantity, 207 have no price, and 200 have no restock date. In addition, 280 of the 332 Out of Stock rows show a quantity above zero, so status and quantity disagree.</p>
+<p>The raw file was cleaned before analysis: whitespace trimmed, names standardized, 160 text quantities converted to numbers, <code>NaN</code> text turned into true blanks, and dates rewritten as YYYY-MM-DD. All 1,000 rows were kept.</p>
+<p class="note">Rates were calculated with Python (Pandas) and Excel pivot tables. Inventory value is price times quantity and covers the 661 rows that have both.</p>
+</main>
+<script>
+(function(){
+var AVG=33.2,s='';
+for(var i=0;i<100;i++){
+var x=(i%10)*19,y=Math.floor(i/10)*19;
+s+='<rect x="'+x+'" y="'+y+'" width="16" height="16" rx="2" fill="'+(i<33?'var(--hi)':i<66?'var(--mid)':'var(--track)')+'"/>';
+}
+document.getElementById('grid').innerHTML=s;
+var G=[['By product',[['Gadget X',54,133],['Widget B',66,170],['Gadget Y',58,177],['Widget A',55,176],['Widget C',52,175],['Gadget Z',47,169]]],
+['By category',[['Furniture',95,265],['Clothing',89,257],['Electronics',81,248],['Toys',67,230]]],
+['By warehouse',[['Warehouse 2',115,332],['Warehouse 3',104,319],['Warehouse 1',113,349]]],
+['By location',[['Aisle 5',77,199],['Aisle 3',74,211],['Aisle 2',57,181],['Aisle 4',62,199],['Aisle 1',62,210]]],
+['By supplier',[['Supplier D',85,236],['Supplier A',80,244],['Supplier B',94,288],['Supplier C',73,232]]]];
+var K=3.55,h='';
+G.forEach(function(g){
+var n=g[1].length,cols='',labs='';
+g[1].forEach(function(r){
+var p=r[1]/r[2]*100;
+cols+='<div class="col"><b>'+p.toFixed(2)+'%</b><div class="bar" style="height:'+(p*K).toFixed(1)+'px;background:'+(p>AVG?'var(--hi)':'var(--lo)')+'"></div></div>';
+labs+='<div class="lab">'+r[0]+'<small>'+r[1]+'/'+r[2]+'</small></div>';
+});
+h+='<div class="grp">'+g[0]+'</div><div class="plot"><div class="avg" style="bottom:'+(AVG*K).toFixed(1)+'px"></div><div class="cols" style="grid-template-columns:repeat('+n+',1fr)">'+cols+'</div></div><div class="labs" style="grid-template-columns:repeat('+n+',1fr)">'+labs+'</div>';
+});
+document.getElementById('bars').innerHTML=h;
+})();
+</script>
+</body>
+</html>
