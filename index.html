@@ -23,7 +23,9 @@ p{margin:0 0 1rem;max-width:38rem}
 .by{color:var(--mut);font-size:.9rem;margin:0 0 1.25rem}
 .lede{color:var(--mut);font-size:1.1rem;margin-top:1.25rem}
 .hero{display:flex;flex-wrap:wrap;gap:1.75rem;align-items:flex-start;margin-top:2.25rem;padding-top:2rem;border-top:3px solid var(--hi)}
-.hero svg{width:100%;max-width:36rem;height:auto;flex:none}
+.top{display:flex;align-items:center;gap:1.25rem}
+.hero .big{flex:none;font-size:clamp(2.6rem,11vw,5rem)}
+.bc{flex:1;min-width:0;height:auto}
 .hero>div{flex:1 1 100%}
 .big{font-family:"Barlow Condensed","Arial Narrow",Impact,sans-serif;font-weight:600;font-size:5rem;line-height:.95;font-variant-numeric:tabular-nums}
 .hero p{margin:.5rem 0 0;color:var(--mut);font-size:.95rem}
@@ -53,12 +55,11 @@ li{margin-bottom:.75rem}
 <p class="lede">Two out of every three warehouse records are out of stock or running low. The shortages cluster around a few products, one aisle and one supplier, and gaps in the data make stock levels harder to trust.</p>
 
 <section class="hero" aria-label="Stock status overview">
-<svg id="grid" viewBox="0 0 340 90" role="img" aria-label="Stock status meter: 33.2 percent out of stock, 32.8 percent low stock, 34.0 percent in stock. Out of stock and low stock together make up 66.00 percent."></svg>
+<div class="top"><div class="big">66.00%</div><svg class="bc" id="bc" viewBox="0 0 200 60" role="img" aria-label="Barcode of 100 lines, each about 10 records: 33 amber for out of stock, 33 dark amber for low stock, 34 gray for in stock. Out of stock and low stock together are 66.00 percent."></svg></div>
 <div>
-<div class="big">66.00%</div>
 <p><strong>660 of 1,000</strong> records are Out of Stock (332) or Low Stock (328).</p>
 <p>They hold <strong>$2,019,781</strong> of the <strong>$2,949,939</strong> recorded inventory value (68.47%).</p>
-<div class="lg"><span><i style="background:var(--hi)"></i>Out of stock 33.2%</span><span><i style="background:var(--mid)"></i>Low stock 32.8%</span><span><i style="background:var(--track)"></i>In stock 34.0%</span></div>
+<div class="lg"><span><i style="background:var(--hi)"></i>Out of stock 33.2%</span><span><i style="background:var(--mid)"></i>Low stock 32.8%</span><span><i style="background:var(--lo)"></i>In stock 34.0%</span><span>Each line ≈ 10 records</span></div>
 </div>
 </section>
 
@@ -91,14 +92,9 @@ li{margin-bottom:.75rem}
 <script>
 (function(){
 var AVG=33.2,s='';
-var W=340,sg=[[33.2,'var(--hi)','#1c2024','33.2%'],[32.8,'var(--mid)','var(--ink)','32.8%'],[34.0,'var(--track)','var(--ink)','34.0%']],cx=0;
-s+='<defs><clipPath id="cap"><rect x="0" y="46" width="'+W+'" height="34" rx="17"/></clipPath></defs><g clip-path="url(#cap)">';
-sg.forEach(function(g){var w=g[0]/100*W;s+='<rect x="'+cx.toFixed(2)+'" y="46" width="'+w.toFixed(2)+'" height="34" fill="'+g[1]+'" stroke="var(--bg)" stroke-width="1.5"/>';g[4]=cx+w/2;cx+=w;});
-s+='</g>';
-sg.forEach(function(g){s+='<text x="'+g[4].toFixed(1)+'" y="68.5" text-anchor="middle" font-size="13" font-weight="500" style="fill:'+g[2]+'" font-family="Barlow,sans-serif">'+g[3]+'</text>';});
-var bx=(33.2+32.8)/100*W;
-s+='<path d="M0 36 V30 H'+bx.toFixed(1)+' V36" fill="none" stroke="var(--mut)" stroke-width="1.5"/><text x="'+(bx/2).toFixed(1)+'" y="20" text-anchor="middle" font-size="13" font-weight="500" style="fill:var(--ink)" font-family="Barlow,sans-serif">66.00% out of stock or low</text>';
-document.getElementById('grid').innerHTML=s;
+for(var i=0;i<100;i++){s+='<rect x="'+(i*2+.35).toFixed(2)+'" y="4" width="1.3" height="52" rx=".5" fill="'+(i<33?'var(--hi)':i<66?'var(--mid)':'var(--lo)')+'"/>';}
+document.getElementById('bc').innerHTML=s;
+
 var G=[['By product',[['Gadget X',54,133],['Widget B',66,170],['Gadget Y',58,177],['Widget A',55,176],['Widget C',52,175],['Gadget Z',47,169]]],
 ['By category',[['Furniture',95,265],['Clothing',89,257],['Electronics',81,248],['Toys',67,230]]],
 ['By warehouse',[['Warehouse 2',115,332],['Warehouse 3',104,319],['Warehouse 1',113,349]]],
